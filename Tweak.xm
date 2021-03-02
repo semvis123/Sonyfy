@@ -9,22 +9,6 @@
 -(NSString *)name;
 @end
 
-@interface MPAVRoute : NSObject
--(id)logicalLeaderOutputDevice;
-@end
-
-@interface MPAVRoutingController : NSObject
-@property(readonly, nonatomic) MPAVRoute *pickedRoute;
-@end
-
-@interface SBMediaController : NSObject
-+ (instancetype)sharedInstance;
--(BOOL)_sendMediaCommand:(unsigned)command;
--(float)volume;
--(BOOL)_lastNowPlayingAppIsPlaying;
-@property(readonly, nonatomic)MPAVRoutingController *_routingController;
-@end
-
 
 %hook AVOutputDevice
 -(id)availableBluetoothListeningModes {
@@ -33,10 +17,6 @@
     HBLogDebug(@" = %@", r);
 
     if ([self.name isEqual:@"WH-1000XM3"]){
-        NSArray *options = [NSArray arrayWithObjects:@"AVOutputDeviceBluetoothListeningModeNormal",
-                            @"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation",
-                            @"AVOutputDeviceBluetoothListeningModeAudioTransparency",
-                            nil];
 
         NSArray *accessories = [[EAAccessoryManager sharedAccessoryManager] connectedAccessories];
         NSLog( @"acessories %@", accessories);
@@ -47,6 +27,10 @@
             }
         }
 
+        NSArray *options = [NSArray arrayWithObjects:@"AVOutputDeviceBluetoothListeningModeNormal",
+                            @"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation",
+                            @"AVOutputDeviceBluetoothListeningModeAudioTransparency",
+                            nil];
         return options;
     }
 
