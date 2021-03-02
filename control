@@ -1,0 +1,9 @@
+Package: com.yourcompany.sonyfy
+Name: sonyfy
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome MobileSubstrate tweak!
+Maintainer: Sem Visscher
+Author: Sem Visscher
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000), preferenceloader (>= 2.2.3)
