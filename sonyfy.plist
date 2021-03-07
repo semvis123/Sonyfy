@@ -1,1 +1,1 @@
-{ Filter = { Bundles = ( "com.apple.springboard" ); }; }
+{ Filter = { Bundles = ( "com.apple.accessories", "com.apple.springboard", "jp.co.sony.songpal.mdr" ); }; }
