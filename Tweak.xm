@@ -145,15 +145,94 @@
 // %end
 
 %hook EAOutputStream
-- (long long)write:(const char *)arg1 maxLength:(unsigned long long)arg2 {
-    NSData *dataData = [NSData dataWithBytes:arg1 length:sizeof(arg1)];
+- (NSInteger)write:(const uint8_t *)buffer maxLength:(NSUInteger)len{
+    NSData *dataData = [NSData dataWithBytes:buffer length:sizeof(buffer)];
     NSLog(@"dataaaaaaaaaaaa = %@", dataData);
-    NSString *result = [[NSString alloc] initWithData:dataData encoding:NSUTF8StringEncoding];
-    NSLog(@"%@", result);
+    // NSString *result = [[NSString alloc] initWithData:dataData encoding:NSUTF8StringEncoding];
+    // NSLog(@"%@", result);
     return %orig;
 }
 %end
 
+%hook EAInputStream
+- (long long)read:(char *)arg1 maxLength:(unsigned long long)arg2 {
+    long long r = %orig;
+    NSData *dataData = [NSData dataWithBytes:arg1 length:sizeof(arg1)];
+    NSLog(@"dataaaaaaaaaaaaaaaa read = %@", dataData);
+    return r;
+}
+%end
+%hook EASession
+- (instancetype)initWithAccessory:(EAAccessory *)accessory forProtocol:(NSString *)protocolString {
+%log;
+return %orig;                          
+}
+%end
+
+%hook ACCExternalAccessoryProvider
+-(void)sendOutgoingExternalAccessoryData:(id)arg1 forEASessionIdentifier:(id)arg2 withReply:(/*^block*/ id)arg3 {
+    %log;
+    %orig;
+}
+%end
+
+%hook THMSGV1T1SetNcAsmParam
+-(id)getAsmValue{
+    %log;
+    return %orig;
+}
+-(id)getAsmType{
+    %log;
+    return %orig;
+}
+-(id)getAsmEffect{
+    %log;
+    return %orig;
+}
+-(id)getParameter{
+    %log;
+    return %orig;
+}
++(id)init{
+    %log;
+    return %orig;
+}
+%end
+%hook THMSGV1T1SetNcAsmParam
+-(void)restoreFromPayloadWithByteArray:(id)arg1 {
+    %log;
+    %orig;
+}
+-(id)initWithTHMSGV1T1NcAsmParamBase:(id)arg1 {
+    %log;
+    return %orig;
+}
+// -(unsigned char *)getByteArray {
+//     // %log;
+//     // unsigned char* r = %orig;
+//     // // NSLog(@"%@",r);
+//     // NSMutableString * str = [NSMutableString string];
+//     // for (int i = 0; i<sizeof(r); i++)
+//     // {
+//     //     [str appendFormat:@"%d ", r[i]];
+//     // }
+
+//     // NSLog(@"%@",str);
+//     // return r;
+// }
+%end
+
+%hook THMMdr
+-(void)sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:(id)arg1{
+    %log;
+    NSLog(@"%@", arg1);
+    %orig;
+}
+
+%end
+%ctor {
+    NSLog(@"loaded tweak here ");
+}
 // asm - ambient sound mode
 // asc - adaptive sound control (location/movement based changing)
 // hpc - HeadPhonesControl
@@ -166,7 +245,7 @@
 // 0x3e01010000000002 -- Confirmation idk
 // 0x3e0c000000000868 -- focus on voice ON
 // 0x3e01010000000001 -- Confirmation idk
-// 0x3e0c010000000868 -- focus on voice ON
+// 0x3e0c010000000868 -- focus on voice OFF
 
 // 0x3e0c010000000868 -- control ON
 // 0x3e01010000000002 -- Confirmation idk
