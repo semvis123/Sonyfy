@@ -1,5 +1,5 @@
 #import <ExternalAccessory/ExternalAccessory.h>
-
+#import <Foundation/Foundation.h>
 
 @interface Delegate : NSObject <NSStreamDelegate> {
 @public
@@ -222,10 +222,40 @@ return %orig;
 // }
 %end
 
+@interface THMSGV1T1Payload : NSObject
+-(id)dataType;
+-(id)getByteArray;
+-(id)getCommandStream;
+-(id)getCommandType;
+-(id)initWithByte: (int)arg1;
+-(void)restoreFromPayloadWithByteArray: (const char *)arg1;
+@end
+
+@interface THMSGV1T1NcAsmParam: NSObject
++(id) createWithPayloadWithByteArray: (const char *)arg1;
+@end
+@interface THMSGV1T1SetNcAsmParam : THMSGV1T1Payload
+-(id)initWithTHMSGV1T1NcAsmParamBase: (THMSGV1T1NcAsmParam *)arg1;
+@end
+
 %hook THMMdr
 -(void)sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:(id)arg1{
-    %log;
-    NSLog(@"%@", arg1);
+    if ([NSStringFromClass([arg1 class]) isEqual:@"THMSGV1T1SetNcAsmParam"]){
+        const char bytes1[] = {0x68, 0x2, 0x11, 0x2, 0x2, 0x1, 0x0, 0x0};
+        NSLog(@"Trueeeee");
+        NSLog(@"%@",[arg1 getByteArray]);
+        // NSLog(@"%@",[arg1 getCommandStream]);
+
+        THMSGV1T1SetNcAsmParam *myPayload = [[%c(THMSGV1T1SetNcAsmParam) alloc] initWithTHMSGV1T1NcAsmParamBase:[%c(THMSGV1T1NcAsmParam) createWithPayloadWithByteArray: bytes1]];
+        NSLog(@"succesfully payload created?");
+        // NSLog(@"%@",[myPayload getByteArray]);
+        NSLog(@"succesfully payload created??");
+        [myPayload restoreFromPayloadWithByteArray: bytes1];
+        NSLog(@"%@",[myPayload getByteArray]);
+        // return %orig(myPayload);
+    }
+    // %log;
+    // NSLog(@"%@", [arg1 class]);
     %orig;
 }
 
@@ -236,16 +266,18 @@ return %orig;
 // asm - ambient sound mode
 // asc - adaptive sound control (location/movement based changing)
 // hpc - HeadPhonesControl
-// 0x3e01010000000001 -- Confirmation idk
-// 0x3e0c000000000868 -- focus on voice OFF
-// 0x3e01010000000002 -- Confirmation idk
-// 0x3e0c010000000868 -- focus on voice ON
 
 
-// 0x3e01010000000002 -- Confirmation idk
-// 0x3e0c000000000868 -- focus on voice ON
-// 0x3e01010000000001 -- Confirmation idk
-// 0x3e0c010000000868 -- focus on voice OFF
+//____________________________________________
 
-// 0x3e0c010000000868 -- control ON
-// 0x3e01010000000002 -- Confirmation idk
+// [0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x1, 0x14] asm off 
+// [0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14] asm off
+// [0x68, 0x2, 0x1, 0x2, 0x0, 0x1, 0x1, 0x14] asm on slider on 20 focus on voice
+// [0x68, 0x2, 0x1, 0x2, 0x0, 0x1, 0x0, 0x14] asm on slider on 20 from asm off
+// [0x68, 0x2, 0x11, 0x2, 0x2, 0x1, 0x0, 0x0] nc slider on 0 dual
+// [0x68, 0x2, 0x11, 0x2, 0x1, 0x1, 0x0, 0x0] nc slider on 1 single
+// [0x68, 0x2, 0x11, 0x2, 0x0, 0x1, 0x0, 0x2] nc slider on 2 off
+// [0x68, 0x2, 0x11, 0x2, 0x0, 0x1, 0x0, 0x14] asm slider on 20
+// [0x68, 0x2, 0x11, 0x2, 0x0, 0x1, 0x1, 0x14] focus on voice
+
+// [commandtype, start2, sendstate, 0x2?, NC_DUAL_SINGLE_VALUE, ASM_SETTING_TYPE(0x1), FocusVoice, asmlevel]
