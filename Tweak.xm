@@ -1,10 +1,14 @@
 #import <Foundation/Foundation.h>
+#import <CoreFoundation/CoreFoundation.h>
 #import <rocketbootstrap/rocketbootstrap.h>
 
-@interface CPDistributedMessagingCenter : NSObject
-+ (id)centerNamed:(id)arg1;
--(BOOL)sendMessageName:(NSString*)name userInfo:(NSDictionary*)info;
+@interface NSDistributedNotificationCenter : NSNotificationCenter
++(id)defaultCenter;
+-(void)postNotificationName:(id)arg1 object:(id)arg2 userInfo:(id)arg3 deliverImmediately:(BOOL)arg4;
+-(void)addObserver:(id)arg1 selector:(SEL)arg2 name:(id)arg3 object:(id)arg4;
+-(void)postNotificationName:(id)arg1 object:(id)arg2 userInfo:(id)arg3;
 @end
+
 
 @interface AVOutputDevice : NSObject
 -(void)setCurrentBluetoothListeningMode:(NSString *)arg1;
@@ -32,13 +36,18 @@
 
 -(BOOL)setCurrentBluetoothListeningMode:(id)arg1 error:(id*)arg2  {
     %log;
+    NSLog(@"Set current bluetooth listening mode");
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:arg1 forKey:@"mode"];
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        postNotificationName:@"com.semvis123.sonyfy/setNC"
+        object:nil
+        userInfo: userInfo
+        deliverImmediately:YES];
+    
+
     BOOL r = %orig;
     NSLog(@" = %d", r);
-    NSLog(@"Set current bluetooth listening mode");
-    CPDistributedMessagingCenter *messagingCenter;
-    messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.semvis123.sonyfy"];
-    rocketbootstrap_distributedmessagingcenter_apply(messagingCenter);
-    [messagingCenter sendMessageName:@"setNowPls" userInfo: nil];
     return r; 
 }
 
