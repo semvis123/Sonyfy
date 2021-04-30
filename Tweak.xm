@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
-#import <CoreFoundation/CoreFoundation.h>
-#import <rocketbootstrap/rocketbootstrap.h>
+#import <UIKit/UIKit.h>
+
 
 @interface NSDistributedNotificationCenter : NSNotificationCenter
 +(id)defaultCenter;
@@ -15,14 +15,17 @@
 -(NSString *)name;
 @end
 
+@interface UIApplication (Private)
++(id)sharedApplication;
+-(BOOL)launchApplicationWithIdentifier:(id)identifier suspended:(BOOL)suspended;
+@end
+
+id NCStatusObserver;
+NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
 
 %hook AVOutputDevice
 
 -(id)availableBluetoothListeningModes {
-    %log;
-    id r = %orig;
-    NSLog(@" = %@", r);
-
     if ([self.name isEqual:@"WH-1000XM3"]){
         NSArray *options = [NSArray arrayWithObjects:@"AVOutputDeviceBluetoothListeningModeNormal",
                             @"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation",
@@ -30,34 +33,43 @@
                             nil];
         return options;
     }
-
-    return r;
+    return %orig;
 }
 
 -(BOOL)setCurrentBluetoothListeningMode:(id)arg1 error:(id*)arg2  {
-    %log;
-    NSLog(@"Set current bluetooth listening mode");
-    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-    [userInfo setObject:arg1 forKey:@"mode"];
-    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        postNotificationName:@"com.semvis123.sonyfy/setNC"
-        object:nil
-        userInfo: userInfo
-        deliverImmediately:YES];
-    
-
-    BOOL r = %orig;
-    NSLog(@" = %d", r);
-    return r; 
+    if ([self.name isEqual:@"WH-1000XM3"]){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] launchApplicationWithIdentifier:@"jp.co.sony.songpal.mdr" suspended:1];
+        });
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:arg1 forKey:@"mode"];
+        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+            postNotificationName:@"com.semvis123.sonyfy/setNC"
+            object:nil
+            userInfo: userInfo
+            deliverImmediately:YES];    
+        return true;
+    }
+    return %orig;
 }
 
--(id)currentBluetoothListeningMode { %log; id r = %orig; NSLog(@" = %@", r); return r; }
--(void)setCurrentBluetoothListeningMode:(id)arg1  { %log; %orig; }
+-(id)currentBluetoothListeningMode {
+    if ([self.name isEqual:@"WH-1000XM3"]){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] launchApplicationWithIdentifier:@"jp.co.sony.songpal.mdr" suspended:1];
+        });
+        return currentListeningMode; 
+    }
+    return %orig;
+}
 %end
 
-
-
-// %end
 %ctor {
-    NSLog(@"from springboard ");
+    NCStatusObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/NCStatus" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
+        currentListeningMode = [notification.userInfo objectForKey:@"mode"];
+    }];
+}
+
+%dtor {
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] removeObserver:NCStatusObserver name:@"com.semvis123.sonyfy/NCStatus" object:nil ];
 }

@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import <rocketbootstrap/rocketbootstrap.h>
 
 @interface NSDistributedNotificationCenter : NSNotificationCenter
 +(id)defaultCenter;
@@ -28,68 +27,86 @@
 -(void)sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload: (THMSGV1T1SetNcAsmParam *)arg1;
 @end
 
+@interface HPCNcAsmInformation
+-(int)mAsmValue_;
+-(id)valueForKey: (NSString *)key;
+@end
+
+HPCNcAsmInformation *NcAsmInformation;
+
 %hook HPCNcAsmInformation
--(id)copyWithNcAsmEffectWithTHMSGV1T1NcAsmEffect: (id)arg1{
+
++(id)alloc {
     %log;
-    id org = %orig;
-    NSLog(@"%@", org);
-    return org;
+    NcAsmInformation = %orig;
+    return NcAsmInformation;
+}
+
+-(void)dealloc {
+    %log;
+    if (NcAsmInformation){
+        NSString *currentMode;
+        if (![[[NcAsmInformation valueForKey:@"mSendStatus_"] description] isEqualToString:@"OFF"]){
+            if ([[[NcAsmInformation valueForKey:@"mNoiseCancellingAsmMode_"] description] isEqualToString:@"ASM"]){
+                currentMode = @"AVOutputDeviceBluetoothListeningModeAudioTransparency";
+            } else {
+                currentMode = @"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation";
+            }
+        } else {
+            currentMode = @"AVOutputDeviceBluetoothListeningModeNormal";
+        }
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:currentMode forKey:@"mode"];
+
+        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+            postNotificationName:@"com.semvis123.sonyfy/NCStatus"
+            object:nil
+            userInfo: userInfo
+            deliverImmediately:YES];
+    }
+    %orig;
 }
 %end
 
 
 %hook THMMdr
-static THMMdr *__weak sharedInstance;
-
-
+id setNCObserver;
 -(void)start {
     %orig;
-    	[[NSDistributedNotificationCenter defaultCenter]
-            addObserver:self
-            selector:@selector(notificationReceived:) 
-            name:@"com.semvis123.sonyfy/setNC"
-            object:nil];
+    setNCObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/setNC" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
+        NSLog(@"Received NSDistributedNotificationCenter message %@", [notification.userInfo objectForKey:@"mode"]);
+        const char dataASMOn[] = {0x68, 0x2, 0x11, 0x2, 0x0, 0x1, 0x0, 0x14};
+        const char dataNCOn[] = {0x68, 0x2, 0x11, 0x2, 0x2, 0x1, 0x0, 0x0};
+        const char dataASMOff[] = {0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14};
+        IOSByteArray *byteArray;
 
-//     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserver:(id)observer 
-//            selector:(SEL)selector 
-//                name:(NSNotificationName)name 
-//              object:(NSString *)object 
-//  suspensionBehavior:(NSNotificationSuspensionBehavior)suspensionBehavior;
-//     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/setNC" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
-//         NSLog(@"Received NSDistributedNotificationCenter message %@", [notification.userInfo objectForKey:@"mode"]);
-//         const char dataASMOn[] = {0x68, 0x2, 0x11, 0x2, 0x0, 0x1, 0x0, 0x14};
-//         const char dataNCOn[] = {0x68, 0x2, 0x11, 0x2, 0x2, 0x1, 0x0, 0x0};
-//         const char dataASMOff[] = {0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14};
-//         IOSByteArray * byteArray;
+        if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeAudioTransparency"]){
+            byteArray = [%c(IOSByteArray) arrayWithBytes: dataASMOn count: 8];
+        } else if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation"]){
+            byteArray = [%c(IOSByteArray) arrayWithBytes: dataNCOn count: 8];
+        } else {
+            byteArray = [%c(IOSByteArray) arrayWithBytes: dataASMOff count: 8];
+        }
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:[notification.userInfo objectForKey:@"mode"] forKey:@"mode"];
+        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+            postNotificationName:@"com.semvis123.sonyfy/NCStatus"
+            object:nil
+            userInfo: userInfo
+            deliverImmediately:YES];
+        THMSGV1T1NcAsmParam *ncAsmParam = [%c(THMSGV1T1NcAsmParam) createWithPayloadWithByteArray: byteArray];
+        THMSGV1T1SetNcAsmParam *setNcAsmParam = [[%c(THMSGV1T1SetNcAsmParam) alloc] initWithTHMSGV1T1NcAsmParamBase:ncAsmParam];
+        [setNcAsmParam restoreFromPayloadWithByteArray: byteArray];
 
-//         if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeAudioTransparency"]){
-//             NSLog(@"ooh transparantie lol");
-//             byteArray = [%c(IOSByteArray) arrayWithBytes: dataASMOn count: 8];
-//         }
-//         else if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation"]){
-//             NSLog(@"NoiSeCancELling");
-//             byteArray = [%c(IOSByteArray) arrayWithBytes: dataNCOn count: 8];
-//         }
-//         else {
-//             NSLog(@"normal/off");
-//             byteArray = [%c(IOSByteArray) arrayWithBytes: dataASMOff count: 8];
-//         }
-//         THMSGV1T1NcAsmParam *ncAsmParam = [%c(THMSGV1T1NcAsmParam) createWithPayloadWithByteArray: byteArray];
-//         THMSGV1T1SetNcAsmParam *setNcAsmParam = [[%c(THMSGV1T1SetNcAsmParam) alloc] initWithTHMSGV1T1NcAsmParamBase:ncAsmParam];
-//         [setNcAsmParam restoreFromPayloadWithByteArray: byteArray];
-
-//         [self sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload: setNcAsmParam];
-//     }];
+        [self sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload: setNcAsmParam];
+    }];
 }
-%new 
--(void)notificationReceived: (NSDictionary *)userInfo {
-    NSLog(@"hiero ==============================================================");
-	// return [NSDictionary dictionaryWithObjectsAndKeys:@"key", @"object", nil];
+-(void) dealloc {
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] removeObserver:setNCObserver name:@"com.semvis123.sonyfy/setNC" object:nil ];
+    %orig;
 }
 %end
-%ctor {
-    NSLog(@"from the app");
-}
+
 // asm - ambient sound mode
 // asc - adaptive sound control (location/movement based changing)
 // hpc - HeadPhonesControl

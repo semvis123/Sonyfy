@@ -1,4 +1,4 @@
-TARGET := iphone:clang:latest:13.0
+TARGET := iphone:clang:14.4
 INSTALL_TARGET_PROCESSES = SpringBoard
 THEOS_DEVICE_IP = 192.168.2.1
 DEBUG = 1
@@ -8,8 +8,6 @@ TWEAK_NAME = Sonyfy
 SUBPROJECTS += SonyfyApp
 Sonyfy_FILES = Tweak.xm
 Sonyfy_CFLAGS = -fobjc-arc -std=c++17
-Sonyfy_LIBRARIES = rocketbootstrap
-Sonyfy_FRAMEWORKS = Foundation CoreFoundation AVFoundation
-Sonyfy_PRIVATE_FRAMEWORKS = AppSupport 
+Sonyfy_FRAMEWORKS = Foundation UIKit
 include $(THEOS_MAKE_PATH)/tweak.mk
 include $(THEOS_MAKE_PATH)/aggregate.mk
