@@ -1,24 +1,9 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <Tweak.h>
 
-
-@interface NSDistributedNotificationCenter : NSNotificationCenter
-+(id)defaultCenter;
--(void)postNotificationName:(id)arg1 object:(id)arg2 userInfo:(id)arg3 deliverImmediately:(BOOL)arg4;
--(void)addObserver:(id)arg1 selector:(SEL)arg2 name:(id)arg3 object:(id)arg4;
--(void)postNotificationName:(id)arg1 object:(id)arg2 userInfo:(id)arg3;
-@end
-
-
-@interface AVOutputDevice : NSObject
--(void)setCurrentBluetoothListeningMode:(NSString *)arg1;
--(NSString *)name;
-@end
-
-@interface UIApplication (Private)
-+(id)sharedApplication;
--(BOOL)launchApplicationWithIdentifier:(id)identifier suspended:(BOOL)suspended;
-@end
+bool isEnabled = true;
+NSString *headphonesName = @"WH-1000XM3";
 
 id NCStatusObserver;
 NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
@@ -26,7 +11,7 @@ NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
 %hook AVOutputDevice
 
 -(id)availableBluetoothListeningModes {
-    if ([self.name isEqual:@"WH-1000XM3"]){
+    if (isEnabled && [self.name isEqual:headphonesName]){
         NSArray *options = [NSArray arrayWithObjects:@"AVOutputDeviceBluetoothListeningModeNormal",
                             @"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation",
                             @"AVOutputDeviceBluetoothListeningModeAudioTransparency",
@@ -37,7 +22,7 @@ NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
 }
 
 -(BOOL)setCurrentBluetoothListeningMode:(id)arg1 error:(id*)arg2  {
-    if ([self.name isEqual:@"WH-1000XM3"]){
+    if (isEnabled && [self.name isEqual:headphonesName]){
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UIApplication sharedApplication] launchApplicationWithIdentifier:@"jp.co.sony.songpal.mdr" suspended:1];
         });
@@ -54,7 +39,7 @@ NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
 }
 
 -(id)currentBluetoothListeningMode {
-    if ([self.name isEqual:@"WH-1000XM3"]){
+    if (isEnabled && [self.name isEqual:headphonesName]){
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UIApplication sharedApplication] launchApplicationWithIdentifier:@"jp.co.sony.songpal.mdr" suspended:1];
         });
@@ -64,7 +49,25 @@ NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
 }
 %end
 
+static void updatePrefs()
+{
+    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.semvis123.sonyfypreferences.plist"];
+    if(prefs)
+    {
+        isEnabled = [prefs objectForKey:@"enabled"] ? [[prefs objectForKey:@"enabled"] boolValue] : isEnabled;
+        headphonesName = [prefs objectForKey:@"headphonesName"] ? [prefs objectForKey:@"headphonesName"] : headphonesName;
+        if(isEnabled){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[UIApplication sharedApplication] launchApplicationWithIdentifier:@"jp.co.sony.songpal.mdr" suspended:1];
+            });
+        }
+    }
+}
+
+
 %ctor {
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)updatePrefs, CFSTR("com.semvis123.sonyfypreferences/update"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+    updatePrefs();
     NCStatusObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/NCStatus" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
         currentListeningMode = [notification.userInfo objectForKey:@"mode"];
     }];

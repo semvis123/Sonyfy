@@ -1,49 +1,21 @@
 #import <Foundation/Foundation.h>
+#import <Tweak.h>
 
-@interface NSDistributedNotificationCenter : NSNotificationCenter
-+(id)defaultCenter;
--(void)postNotificationName:(id)arg1 object:(id)arg2 userInfo:(id)arg3 deliverImmediately:(BOOL)arg4;
--(void)addObserver:(id)arg1 selector:(SEL)arg2 name:(id)arg3 object:(id)arg4;
--(void)postNotificationName:(id)arg1 object:(id)arg2 userInfo:(id)arg3;
-@end
-
-@interface IOSByteArray
-+(id)arrayWithBytes:(const char *)ints count:(NSUInteger)count;
-@end
-
-@interface THMSGV1T1Payload : NSObject
--(void)restoreFromPayloadWithByteArray: (IOSByteArray *)arg1;
-@end
-
-@interface THMSGV1T1NcAsmParam: NSObject
-+(id) createWithPayloadWithByteArray: (IOSByteArray *)arg1;
-@end
-
-@interface THMSGV1T1SetNcAsmParam : THMSGV1T1Payload
--(id)initWithTHMSGV1T1NcAsmParamBase: (THMSGV1T1NcAsmParam *)arg1;
-@end
-
-@interface THMMdr
--(void)sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload: (THMSGV1T1SetNcAsmParam *)arg1;
-@end
-
-@interface HPCNcAsmInformation
--(int)mAsmValue_;
--(id)valueForKey: (NSString *)key;
-@end
-
+bool focusOnVoiceNC = false;
+bool focusOnVoiceASM = false;
+bool isEnabled = true;
+int NCValue = 0;
+int ASMValue = 20;
 HPCNcAsmInformation *NcAsmInformation;
 
 %hook HPCNcAsmInformation
 
 +(id)alloc {
-    %log;
     NcAsmInformation = %orig;
     return NcAsmInformation;
 }
 
 -(void)dealloc {
-    %log;
     if (NcAsmInformation){
         NSString *currentMode;
         if (![[[NcAsmInformation valueForKey:@"mSendStatus_"] description] isEqualToString:@"OFF"]){
@@ -74,10 +46,11 @@ id setNCObserver;
 -(void)start {
     %orig;
     setNCObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/setNC" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
-        NSLog(@"Received NSDistributedNotificationCenter message %@", [notification.userInfo objectForKey:@"mode"]);
-        const char dataASMOn[] = {0x68, 0x2, 0x11, 0x2, 0x0, 0x1, 0x0, 0x14};
-        const char dataNCOn[] = {0x68, 0x2, 0x11, 0x2, 0x2, 0x1, 0x0, 0x0};
+        const char dataNCOn[] = {0x68, 0x2, 0x11, 0x2, 0x2, 0x1, focusOnVoiceNC, static_cast<char>(NCValue)};
+        const char dataASMOn[] = {0x68, 0x2, 0x11, 0x2, 0x0, 0x1, focusOnVoiceASM, static_cast<char>(ASMValue)};
         const char dataASMOff[] = {0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14};
+        NSLog(@"NCValue: %d", NCValue);
+        NSLog(@"ASMValue: %d", ASMValue);
         IOSByteArray *byteArray;
 
         if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeAudioTransparency"]){
@@ -106,6 +79,36 @@ id setNCObserver;
     %orig;
 }
 %end
+
+
+static void updateAppPrefs()
+{
+    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.semvis123.sonyfypreferences.plist"];
+    if(prefs)
+    {
+        focusOnVoiceASM = [prefs objectForKey:@"focusOnVoiceASM"] ? [[prefs objectForKey:@"focusOnVoiceASM"] boolValue] : focusOnVoiceASM;
+        focusOnVoiceNC = [prefs objectForKey:@"focusOnVoiceNC"] ? [[prefs objectForKey:@"focusOnVoiceNC"] boolValue] : focusOnVoiceNC;
+        NCValue = [prefs objectForKey:@"NCValue"] ? [[prefs objectForKey:@"NCValue"] intValue] : NCValue;
+        ASMValue = [prefs objectForKey:@"ASMValue"] ? [[prefs objectForKey:@"ASMValue"] intValue] : ASMValue;
+    }
+}
+
+static void updateGlobalPrefs()
+{
+    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.semvis123.sonyfypreferences.plist"];
+    if(prefs)
+    {
+        isEnabled = [prefs objectForKey:@"enabled"] ? [[prefs objectForKey:@"enabled"] boolValue] : isEnabled;
+    }
+}
+
+
+%ctor {
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)updateGlobalPrefs, CFSTR("com.semvis123.sonyfypreferences/update"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+    updateGlobalPrefs();
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)updateAppPrefs, CFSTR("com.semvis123.sonyfypreferences/updateApp"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+    updateAppPrefs();
+}
 
 // asm - ambient sound mode
 // asc - adaptive sound control (location/movement based changing)

@@ -10,4 +10,5 @@ Sonyfy_FILES = Tweak.xm
 Sonyfy_CFLAGS = -fobjc-arc -std=c++17
 Sonyfy_FRAMEWORKS = Foundation UIKit
 include $(THEOS_MAKE_PATH)/tweak.mk
+SUBPROJECTS += sonyfypreferences
 include $(THEOS_MAKE_PATH)/aggregate.mk
