@@ -10,4 +10,4 @@ Yes! Sonyfy should work just fine with other noise cancelling (automation) tweak
 
 # Does it work with my headphones
 Sonyfy is currently tested on the WH-1000XM3s and the WH-1000XM4s, other headphones might work but I haven't tested it.
-- the WH-H910N doesn't seem to work,
+- it doesn't seem to work with the WH-H910N.
