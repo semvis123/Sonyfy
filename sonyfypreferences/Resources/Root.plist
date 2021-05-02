@@ -9,16 +9,20 @@
 				<string>twitter</string>
 				<key>cell</key>
 				<string>PSButtonCell</string>
+				<key>icon</key>
+				<string>twitter.png</string>
 				<key>label</key>
-				<string>Twitter: semvis123</string>
+				<string>@semvis123</string>
 			</dict>
 			<dict>
 				<key>action</key>
 				<string>github</string>
 				<key>cell</key>
 				<string>PSButtonCell</string>
+				<key>icon</key>
+				<string>github.png</string>
 				<key>label</key>
-				<string>Github: semvis123</string>
+				<string>semvis123</string>
 			</dict>
 			<dict>
 				<key>action</key>
@@ -179,6 +183,14 @@
 				<string>PSButtonCell</string>
 				<key>label</key>
 				<string>Respring to apply changes</string>
+			</dict>
+			<dict>
+				<key>cell</key>
+				<string>PSGroupCell</string>
+				<key>footerText</key>
+				<string>Semvis123 © 2021</string>
+				<key>isStaticText</key>
+				<true/>
 			</dict>
 		</array>
 		<key>title</key>
