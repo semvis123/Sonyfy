@@ -6,14 +6,6 @@
 	<array>
 		<dict>
 			<key>cell</key>
-			<string>PSStaticTextCell</string>
-			<key>icon</key>
-			<string>banner.png</string>
-			<key>height</key>
-			<string>145</string>
-		</dict>
-		<dict>
-			<key>cell</key>
 			<string>PSGroupCell</string>
 		</dict>
 		<dict>
@@ -84,7 +76,7 @@
 			<key>segmentCount</key>
 			<real>20</real>
 			<key>PostNotification</key>
-			<string>com.semvis123.sonyfypreferences/updateApp</string>
+			<string>com.semvis123.sonyfypreferences/update</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -98,7 +90,7 @@
 			<key>label</key>
 			<string>Focus on voice</string>
 			<key>PostNotification</key>
-			<string>com.semvis123.sonyfypreferences/updateApp</string>
+			<string>com.semvis123.sonyfypreferences/update</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -132,7 +124,7 @@
 			<key>segmentCount</key>
 			<real>20</real>
 			<key>PostNotification</key>
-			<string>com.semvis123.sonyfypreferences/updateApp</string>
+			<string>com.semvis123.sonyfypreferences/update</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -146,7 +138,21 @@
 			<key>label</key>
 			<string>Focus on voice</string>
 			<key>PostNotification</key>
-			<string>com.semvis123.sonyfypreferences/updateApp</string>
+			<string>com.semvis123.sonyfypreferences/update</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>respring:</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Respring to apply changes</string>
 		</dict>
 	</array>
 	<key>title</key>

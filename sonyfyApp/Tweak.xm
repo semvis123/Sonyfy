@@ -1,11 +1,11 @@
 #import <Foundation/Foundation.h>
 #import <Tweak.h>
 
-bool focusOnVoiceNC = false;
-bool focusOnVoiceASM = false;
-bool isEnabled = true;
-int NCValue = 0;
-int ASMValue = 20;
+static bool focusOnVoiceNC = false;
+static bool focusOnVoiceASM = false;
+static bool isEnabled = true;
+static char NCValue = 0x0;
+static char ASMValue = 0x14;
 HPCNcAsmInformation *NcAsmInformation;
 
 %hook HPCNcAsmInformation
@@ -46,11 +46,11 @@ id setNCObserver;
 -(void)start {
     %orig;
     setNCObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/setNC" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
-        const char dataNCOn[] = {0x68, 0x2, 0x11, 0x2, 0x2, 0x1, focusOnVoiceNC, static_cast<char>(NCValue)};
-        const char dataASMOn[] = {0x68, 0x2, 0x11, 0x2, 0x0, 0x1, focusOnVoiceASM, static_cast<char>(ASMValue)};
+        char NCDualSingleValue = NCValue == 0 ? 0x2 : (NCValue == 1 ? 0x1 : 0x0);
+        char ASMDualSingleValue = ASMValue == 0 ? 0x2 : (ASMValue == 1 ? 0x1 : 0x0);
+        const char dataNCOn[] = {0x68, 0x2, 0x11, 0x2, NCDualSingleValue, 0x1, focusOnVoiceNC, NCValue};
+        const char dataASMOn[] = {0x68, 0x2, 0x11, 0x2, ASMDualSingleValue, 0x1, focusOnVoiceASM, ASMValue};
         const char dataASMOff[] = {0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14};
-        NSLog(@"NCValue: %d", NCValue);
-        NSLog(@"ASMValue: %d", ASMValue);
         IOSByteArray *byteArray;
 
         if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeAudioTransparency"]){
@@ -81,11 +81,11 @@ id setNCObserver;
 %end
 
 
-static void updateAppPrefs()
-{
+static void updatePrefs() {
     NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.semvis123.sonyfypreferences.plist"];
     if(prefs)
     {
+        isEnabled = [prefs objectForKey:@"enabled"] ? [[prefs objectForKey:@"enabled"] boolValue] : isEnabled;
         focusOnVoiceASM = [prefs objectForKey:@"focusOnVoiceASM"] ? [[prefs objectForKey:@"focusOnVoiceASM"] boolValue] : focusOnVoiceASM;
         focusOnVoiceNC = [prefs objectForKey:@"focusOnVoiceNC"] ? [[prefs objectForKey:@"focusOnVoiceNC"] boolValue] : focusOnVoiceNC;
         NCValue = [prefs objectForKey:@"NCValue"] ? [[prefs objectForKey:@"NCValue"] intValue] : NCValue;
@@ -93,37 +93,8 @@ static void updateAppPrefs()
     }
 }
 
-static void updateGlobalPrefs()
-{
-    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.semvis123.sonyfypreferences.plist"];
-    if(prefs)
-    {
-        isEnabled = [prefs objectForKey:@"enabled"] ? [[prefs objectForKey:@"enabled"] boolValue] : isEnabled;
-    }
-}
-
 
 %ctor {
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)updateGlobalPrefs, CFSTR("com.semvis123.sonyfypreferences/update"), NULL, CFNotificationSuspensionBehaviorCoalesce);
-    updateGlobalPrefs();
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)updateAppPrefs, CFSTR("com.semvis123.sonyfypreferences/updateApp"), NULL, CFNotificationSuspensionBehaviorCoalesce);
-    updateAppPrefs();
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)updatePrefs, CFSTR("com.semvis123.sonyfypreferences/update"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+    updatePrefs();
 }
-
-// asm - ambient sound mode
-// asc - adaptive sound control (location/movement based changing)
-// hpc - HeadPhonesControl
-
-
-//____________________________________________
-
-// [0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x1, 0x14] asm off 
-// [0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14] asm off
-// [0x68, 0x2, 0x1, 0x2, 0x0, 0x1, 0x1, 0x14] asm on slider on 20 focus on voice
-// [0x68, 0x2, 0x1, 0x2, 0x0, 0x1, 0x0, 0x14] asm on slider on 20 from asm off
-// [0x68, 0x2, 0x11, 0x2, 0x2, 0x1, 0x0, 0x0] nc slider on 0 dual
-// [0x68, 0x2, 0x11, 0x2, 0x1, 0x1, 0x0, 0x0] nc slider on 1 single
-// [0x68, 0x2, 0x11, 0x2, 0x0, 0x1, 0x0, 0x2] nc slider on 2 off
-// [0x68, 0x2, 0x11, 0x2, 0x0, 0x1, 0x0, 0x14] asm slider on 20
-// [0x68, 0x2, 0x11, 0x2, 0x0, 0x1, 0x1, 0x14] focus on voice
-// [commandtype, 0x2?, sendstate, 0x2?, NC_DUAL_SINGLE_VALUE, ASM_SETTING_TYPE(0x1), FocusVoice, asmlevel]
