@@ -1,9 +1,9 @@
 Package: com.semvis123.sonyfy
 Name: Sonyfy
-Version: 0.0.1
+Version: 1.0.1
 Architecture: iphoneos-arm
-Description: Sonyfy, allows the active noise control settings be changed from the stock menu in iOS.
+Description: Sonyfy, bring the noise cancellation control of your Sony headphones to the built-in iOS menu.
 Maintainer: Sem Visscher
 Author: Sem Visscher
 Section: Tweaks
-Depends: mobilesubstrate (>= 0.9.5000), preferenceloader (>= 2.2.3), com.rpetrich.rocketbootstrap (>= 1.0.2) | firmware (<< 7.0)
+Depends: mobilesubstrate, preferenceloader, firmware (>=13.0)
