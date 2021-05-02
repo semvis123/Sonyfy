@@ -43,6 +43,7 @@ HPCNcAsmInformation *NcAsmInformation;
 
 %hook THMMdr
 id setNCObserver;
+
 -(void)start {
     %orig;
     setNCObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/setNC" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
@@ -60,6 +61,7 @@ id setNCObserver;
         } else {
             byteArray = [%c(IOSByteArray) arrayWithBytes: dataASMOff count: 8];
         }
+
         NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
         [userInfo setObject:[notification.userInfo objectForKey:@"mode"] forKey:@"mode"];
         [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
@@ -74,10 +76,12 @@ id setNCObserver;
         [self sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload: setNcAsmParam];
     }];
 }
--(void) dealloc {
+
+-(void)dealloc {
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] removeObserver:setNCObserver name:@"com.semvis123.sonyfy/setNC" object:nil ];
     %orig;
 }
+
 %end
 
 

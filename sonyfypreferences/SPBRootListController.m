@@ -29,12 +29,20 @@
     ]];
 }
 
-
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     tableView.tableHeaderView = [self headerView];
     return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
+-(void)twitter {
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://twitter.com/semvis123"] options:@{} completionHandler:nil];
+}
+-(void)github {
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/semvis123"] options:@{} completionHandler:nil];
+}
+-(void)donate {
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://www.buymeacoffee.com/semvis123"] options:@{} completionHandler:nil];
+}
 
 -(void)respring:(id)sender {
 	pid_t pid;
