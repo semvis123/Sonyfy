@@ -84,7 +84,7 @@
 				<key>cell</key>
 				<string>PSStaticTextCell</string>
 				<key>label</key>
-				<string>Ambent sound level</string>
+				<string>Ambient sound level</string>
 			</dict>
 			<dict>
 				<key>cell</key>
@@ -132,7 +132,7 @@
 				<key>cell</key>
 				<string>PSStaticTextCell</string>
 				<key>label</key>
-				<string>Ambent sound level</string>
+				<string>Ambient sound level</string>
 			</dict>
 			<dict>
 				<key>cell</key>
