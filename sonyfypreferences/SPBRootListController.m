@@ -31,6 +31,7 @@
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     tableView.tableHeaderView = [self headerView];
+    tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
     return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
