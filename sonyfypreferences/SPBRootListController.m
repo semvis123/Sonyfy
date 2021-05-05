@@ -35,6 +35,10 @@
     return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
+-(void)_returnKeyPressed:(id)arg1 {
+    [self.view endEditing:YES];
+}
+
 -(void)twitter {
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://twitter.com/semvis123"] options:@{} completionHandler:nil];
 }
