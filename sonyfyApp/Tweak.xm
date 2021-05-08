@@ -43,6 +43,13 @@ HPCNcAsmInformation *NcAsmInformation;
 
 %hook THMMdr
 id setNCObserver;
+-(void)sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:(THMSGV1T1Payload *)arg1{
+     NSLog(@"%@", arg1);
+     if ([NSStringFromClass([arg1 class]) isEqual:@"THMSGV1T1SetNcAsmParam"]){
+         NSLog(@"%@",[arg1 getByteArray]);
+     }
+     %orig;
+ }
 
 -(void)start {
     %orig;

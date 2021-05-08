@@ -10,6 +10,7 @@
 @end
 
 @interface THMSGV1T1Payload : NSObject
+ -(id)getByteArray;
 -(void)restoreFromPayloadWithByteArray: (IOSByteArray *)arg1;
 @end
 
