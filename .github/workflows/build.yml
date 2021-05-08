@@ -47,3 +47,7 @@ jobs:
         run: |
          make clean package FINALPACKAGE=1
          echo "::set-output name=package::$(ls -t packages | head -n1)"
+      - name: Upload To GitHub Artifacts
+        uses: actions/upload-artifact@v2.2.2
+        with:
+          path: ./packages/*.deb
