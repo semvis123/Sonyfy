@@ -1,4 +1,4 @@
-TARGET := iphone:clang:14.4
+TARGET := iphone:clang:13.3.1
 INSTALL_TARGET_PROCESSES = SpringBoard
 THEOS_DEVICE_IP = 192.168.2.1
 DEBUG = 1
