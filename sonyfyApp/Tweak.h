@@ -1,3 +1,5 @@
+#import <Foundation/Foundation.h>
+
 @interface NSDistributedNotificationCenter : NSNotificationCenter
 +(id)defaultCenter;
 -(void)postNotificationName:(id)arg1 object:(id)arg2 userInfo:(id)arg3 deliverImmediately:(BOOL)arg4;
