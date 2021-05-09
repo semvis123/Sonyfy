@@ -1,4 +1,3 @@
-#import <Foundation/Foundation.h>
 #import <Tweak.h>
 
 static bool focusOnVoiceNC = false;
@@ -65,25 +64,18 @@ id setNCObserver;
         IOSByteArray *byteArray;
 
         if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeAudioTransparency"]){
-            byteArray = [%c(IOSByteArray) arrayWithBytes: dataASMOn count: 8];
+            byteArray = [%c(IOSByteArray) arrayWithBytes:dataASMOn count:8];
         } else if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation"]){
-            byteArray = [%c(IOSByteArray) arrayWithBytes: dataNCOn count: 8];
+            byteArray = [%c(IOSByteArray) arrayWithBytes:dataNCOn count:8];
         } else {
-            byteArray = [%c(IOSByteArray) arrayWithBytes: dataASMOff count: 8];
+            byteArray = [%c(IOSByteArray) arrayWithBytes:dataASMOff count:8];
         }
 
-        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:[notification.userInfo objectForKey:@"mode"] forKey:@"mode"];
-        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-            postNotificationName:@"com.semvis123.sonyfy/NCStatus"
-            object:nil
-            userInfo: userInfo
-            deliverImmediately:YES];
-        THMSGV1T1NcAsmParam *ncAsmParam = [%c(THMSGV1T1NcAsmParam) createWithPayloadWithByteArray: byteArray];
+        THMSGV1T1NcAsmParam *ncAsmParam = [%c(THMSGV1T1NcAsmParam) createWithPayloadWithByteArray:byteArray];
         THMSGV1T1SetNcAsmParam *setNcAsmParam = [[%c(THMSGV1T1SetNcAsmParam) alloc] initWithTHMSGV1T1NcAsmParamBase:ncAsmParam];
-        [setNcAsmParam restoreFromPayloadWithByteArray: byteArray];
+        [setNcAsmParam restoreFromPayloadWithByteArray:byteArray];
 
-        [self sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload: setNcAsmParam];
+        [self sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:setNcAsmParam];
     }];
 }
 
