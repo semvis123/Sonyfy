@@ -58,9 +58,10 @@ id setNCObserver;
         char ASMDualSingleValue = ASMValue == 0 ? 0x2 : (ASMValue == 1 ? 0x1 : 0x0);
         char NCSettingType = !windReductionSupport && NCValue == 0 ? 0x0 : 0x2;
         char ASMSettingType = !windReductionSupport && ASMValue == 0 ? 0x0 : 0x2;
-        const char dataNCOn[] = {0x68, 0x2, 0x11, NCSettingType, NCDualSingleValue, !!NCSettingType, focusOnVoiceNC, NCValue};
-        const char dataASMOn[] = {0x68, 0x2, 0x11, ASMSettingType, ASMDualSingleValue, !!ASMSettingType, focusOnVoiceASM, ASMValue};
-        const char dataASMOff[] = {0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14};
+        NSLog(@"wind reduction support %d , NCSettingType %d NCValue %d", windReductionSupport, NCSettingType, NCValue);
+        char dataNCOn[] = {0x68, 0x2, 0x11, NCSettingType, NCDualSingleValue, !!NCSettingType, focusOnVoiceNC, NCValue};
+        char dataASMOn[] = {0x68, 0x2, 0x11, ASMSettingType, ASMDualSingleValue, !!ASMSettingType, focusOnVoiceASM, ASMValue};
+        char dataASMOff[] = {0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14};
         IOSByteArray *byteArray;
 
         if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeAudioTransparency"]){
