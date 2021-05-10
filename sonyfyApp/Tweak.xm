@@ -3,6 +3,7 @@
 
 static bool focusOnVoiceNC = false;
 static bool focusOnVoiceASM = false;
+static bool windReductionSupport = true;
 static bool isEnabled = true;
 static char NCValue = 0x0;
 static char ASMValue = 0x14;
@@ -56,8 +57,10 @@ id setNCObserver;
     setNCObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/setNC" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
         char NCDualSingleValue = NCValue == 0 ? 0x2 : (NCValue == 1 ? 0x1 : 0x0);
         char ASMDualSingleValue = ASMValue == 0 ? 0x2 : (ASMValue == 1 ? 0x1 : 0x0);
-        const char dataNCOn[] = {0x68, 0x2, 0x11, 0x2, NCDualSingleValue, 0x1, focusOnVoiceNC, NCValue};
-        const char dataASMOn[] = {0x68, 0x2, 0x11, 0x2, ASMDualSingleValue, 0x1, focusOnVoiceASM, ASMValue};
+        char NCSettingType = !windReductionSupport && NCValue == 0 ? 0x0 : 0x2;
+        char ASMSettingType = !windReductionSupport && ASMValue == 0 ? 0x0 : 0x2;
+        const char dataNCOn[] = {0x68, 0x2, 0x11, NCSettingType, NCDualSingleValue, !!NCSettingType, focusOnVoiceNC, NCValue};
+        const char dataASMOn[] = {0x68, 0x2, 0x11, ASMSettingType, ASMDualSingleValue, !!ASMSettingType, focusOnVoiceASM, ASMValue};
         const char dataASMOff[] = {0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14};
         IOSByteArray *byteArray;
 
@@ -101,6 +104,7 @@ static void updatePrefs() {
         focusOnVoiceNC = [prefs objectForKey:@"focusOnVoiceNC"] ? [[prefs objectForKey:@"focusOnVoiceNC"] boolValue] : focusOnVoiceNC;
         NCValue = [prefs objectForKey:@"NCValue"] ? [[prefs objectForKey:@"NCValue"] intValue] : NCValue;
         ASMValue = [prefs objectForKey:@"ASMValue"] ? [[prefs objectForKey:@"ASMValue"] intValue] : ASMValue;
+        windReductionSupport = [prefs objectForKey:@"windReductionSupport"] ? [[prefs objectForKey:@"windReductionSupport"] boolValue] : windReductionSupport;
     }
 }
 
