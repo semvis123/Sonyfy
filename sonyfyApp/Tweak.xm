@@ -77,6 +77,12 @@ id setNCObserver;
         [setNcAsmParam restoreFromPayloadWithByteArray:byteArray];
 
         [self sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:setNcAsmParam];
+        
+        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+            postNotificationName:@"com.semvis123.sonyfy/NCStatus"
+            object:nil
+            userInfo: notification.userInfo
+            deliverImmediately:YES];
     }];
 }
 
