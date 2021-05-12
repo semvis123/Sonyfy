@@ -15,7 +15,10 @@ WH-1000XM3,
 WH-1000XM4,
 WH-H910N,
 WF-1000XM3,
-XB900N
+XB900N,
+WI-C600N,
+WH-CH700N,
+WH-H900N
 
 Other headphones might work but I haven't tested it.
 
