@@ -43,13 +43,6 @@ HPCNcAsmInformation *NcAsmInformation;
 
 %hook THMMdr
 id setNCObserver;
--(void)sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:(THMSGV1T1Payload *)arg1{
-     NSLog(@"%@", arg1);
-     if ([NSStringFromClass([arg1 class]) isEqual:@"THMSGV1T1SetNcAsmParam"]){
-         NSLog(@"%@",[arg1 getByteArray]);
-     }
-     %orig;
- }
 
 -(void)start {
     %orig;
@@ -58,7 +51,7 @@ id setNCObserver;
         char ASMDualSingleValue = ASMValue == 0 ? (windReductionSupport? 0x2: 0x1) : (ASMValue == 1 ? 0x1 : 0x0);
         char NCSettingType = !windReductionSupport && NCValue == 0 ? 0x0 : 0x2;
         char ASMSettingType = !windReductionSupport && ASMValue == 0 ? 0x0 : 0x2;
-        NSLog(@"wind reduction support %d , NCSettingType %d NCValue %d", windReductionSupport, NCSettingType, NCValue);
+
         char dataNCOn[] = {0x68, 0x2, 0x11, NCSettingType, NCDualSingleValue, !!NCSettingType, focusOnVoiceNC, NCValue};
         char dataASMOn[] = {0x68, 0x2, 0x11, ASMSettingType, ASMDualSingleValue, !!ASMSettingType, focusOnVoiceASM, ASMValue};
         char dataASMOff[] = {0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14};
@@ -77,7 +70,7 @@ id setNCObserver;
         [setNcAsmParam restoreFromPayloadWithByteArray:byteArray];
 
         [self sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:setNcAsmParam];
-        
+
         [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
             postNotificationName:@"com.semvis123.sonyfy/NCStatus"
             object:nil
@@ -109,12 +102,6 @@ static void updatePrefs() {
 
 
 %ctor {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *fileName =[NSString stringWithFormat:@"Sonyfy-logs-%@.log",[NSDate date]];
-    NSString *logFilePath = [documentsDirectory stringByAppendingPathComponent:fileName];
-    freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding],"a+",stderr);
-
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)updatePrefs, CFSTR("com.semvis123.sonyfypreferences/update"), NULL, CFNotificationSuspensionBehaviorCoalesce);
     updatePrefs();
 }
