@@ -9,7 +9,6 @@
 @end
 
 @interface AVOutputDevice : NSObject
--(void)setCurrentBluetoothListeningMode:(NSString *)arg1;
 -(NSString *)name;
 @end
 

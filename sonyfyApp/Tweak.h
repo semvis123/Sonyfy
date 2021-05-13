@@ -12,7 +12,7 @@
 @end
 
 @interface THMSGV1T1Payload : NSObject
- -(id)getByteArray;
+-(id)getByteArray;
 -(void)restoreFromPayloadWithByteArray: (IOSByteArray *)arg1;
 @end
 
@@ -24,7 +24,7 @@
 -(id)initWithTHMSGV1T1NcAsmParamBase: (THMSGV1T1NcAsmParam *)arg1;
 @end
 
-@interface THMMdr
+@interface THMMdr: NSObject
 -(void)sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload: (THMSGV1T1SetNcAsmParam *)arg1;
 @end
 
