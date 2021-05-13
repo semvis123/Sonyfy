@@ -5,7 +5,7 @@ include $(THEOS)/makefiles/common.mk
 BUNDLE_NAME = sonyfyPreferences
 
 sonyfyPreferences_FILES = SPBRootListController.m
-sonyfyPreferences_FRAMEWORKS = UIKit
+sonyfyPreferences_FRAMEWORKS = UIKit BluetoothManager
 sonyfyPreferences_PRIVATE_FRAMEWORKS = Preferences
 sonyfyPreferences_INSTALL_PATH = /Library/PreferenceBundles
 sonyfyPreferences_CFLAGS = -fobjc-arc

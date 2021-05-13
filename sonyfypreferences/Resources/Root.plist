@@ -71,18 +71,24 @@
 				<true/>
 			</dict>
 			<dict>
+				<key>id</key>
+				<string>HeadphonesList</string>
 				<key>cell</key>
-				<string>PSEditTextCell</string>
-				<key>default</key>
-				<string>WH-1000XM3</string>
-				<key>placeholder</key>
-				<string>WH-1000XM3</string>
+				<string>PSLinkListCell</string>
 				<key>defaults</key>
 				<string>com.semvis123.sonyfypreferences</string>
+				<key>detail</key>
+				<string>PSListItemsController</string>
 				<key>key</key>
 				<string>headphonesName</string>
 				<key>label</key>
-				<string>Headphones name:</string>
+				<string>Select your headphone:</string>
+				<key>validTitles</key>
+				<array>
+				</array>
+				<key>validValues</key>
+				<array>
+				</array>
 				<key>PostNotification</key>
 				<string>com.semvis123.sonyfypreferences/update</string>
 			</dict>
