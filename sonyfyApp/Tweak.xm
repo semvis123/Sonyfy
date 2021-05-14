@@ -69,13 +69,15 @@ id setNCObserver;
 		THMSGV1T1SetNcAsmParam *setNcAsmParam = [[%c(THMSGV1T1SetNcAsmParam) alloc] initWithTHMSGV1T1NcAsmParamBase:ncAsmParam];
 		[setNcAsmParam restoreFromPayloadWithByteArray:byteArray];
 
-		if ([self respondsToSelector:@selector(sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:)]) {
+		@try {
 			[self sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:setNcAsmParam];
 			[[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
 				postNotificationName:@"com.semvis123.sonyfy/NCStatus"
 				object:nil
 				userInfo: notification.userInfo
 				deliverImmediately:YES];
+		} @catch(id e) {
+			// Sometimes it doesn't respond to the method (bad timing ?) in that case catch the error, so we don't get a crash. 
 		}
 	}];
 }
