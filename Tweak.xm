@@ -4,6 +4,7 @@ bool isEnabled = true;
 NSString *headphonesName = @"WH-1000XM3";
 
 id NCStatusObserver;
+id killAndRelaunchObserver;
 NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
 
 %hook AVOutputDevice
@@ -69,8 +70,21 @@ static void updatePrefs()
 	NCStatusObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/NCStatus" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
 		currentListeningMode = [notification.userInfo objectForKey:@"mode"];
 	}];
+	killAndRelaunchObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/killAndRelaunch" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
+    	BKSTerminateApplicationForReasonAndReportWithDescription(@"jp.co.sony.songpal.mdr", 1, 0, 0);
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[[UIApplication sharedApplication] launchApplicationWithIdentifier:@"jp.co.sony.songpal.mdr" suspended:1];
+			[[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+				postNotificationName:@"com.semvis123.sonyfy/setNC"
+				object:nil
+				userInfo: notification.userInfo
+				deliverImmediately:YES]; 
+		});
+	}];
+
 }
 
 %dtor {
 	[[objc_getClass("NSDistributedNotificationCenter") defaultCenter] removeObserver:NCStatusObserver name:@"com.semvis123.sonyfy/NCStatus" object:nil ];
+	[[objc_getClass("NSDistributedNotificationCenter") defaultCenter] removeObserver:killAndRelaunchObserver name:@"com.semvis123.sonyfy/killAndRelaunch" object:nil ];
 }

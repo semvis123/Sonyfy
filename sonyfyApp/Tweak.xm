@@ -78,6 +78,11 @@ id setNCObserver;
 				deliverImmediately:YES];
 		} @catch(id e) {
 			// Sometimes it doesn't respond to the method (bad timing ?) in that case catch the error, so we don't get a crash. 
+			[[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+				postNotificationName:@"com.semvis123.sonyfy/killAndRelaunch"
+				object:nil
+				userInfo: notification.userInfo
+				deliverImmediately:YES];
 		}
 	}];
 }
