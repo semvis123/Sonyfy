@@ -22,5 +22,6 @@ WH-H900N
 
 Other headphones might work but I haven't tested it.
 
-Let me know if your device is supported but I haven't put it on the list yet :)
-@semvis123 on twitter
+
+Let me know if your device is supported but I haven't put it on the list yet :)  
+@semvis123 on twitter.
