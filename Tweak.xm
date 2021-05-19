@@ -4,7 +4,9 @@ bool isEnabled = true;
 NSString *headphonesName = @"WH-1000XM3";
 
 id NCStatusObserver;
+id appLaunchedObserver;
 id killAndRelaunchObserver;
+NSString *shouldChangeToMode = @"";
 NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
 
 %hook AVOutputDevice
@@ -21,6 +23,7 @@ NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
 }
 
 -(BOOL)setCurrentBluetoothListeningMode:(id)arg1 error:(id*)arg2  {
+	shouldChangeToMode = arg1;
 	if (isEnabled && [self.name isEqual:headphonesName]){
 		dispatch_async(dispatch_get_main_queue(), ^{
 			[[UIApplication sharedApplication] launchApplicationWithIdentifier:@"jp.co.sony.songpal.mdr" suspended:1];
@@ -48,11 +51,9 @@ NSString *currentListeningMode = @"AVOutputDeviceBluetoothListeningModeNormal";
 }
 %end
 
-static void updatePrefs()
-{
+static void updatePrefs() {
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.semvis123.sonyfypreferences.plist"];
-	if(prefs)
-	{
+	if(prefs){
 		isEnabled = [prefs objectForKey:@"enabled"] ? [[prefs objectForKey:@"enabled"] boolValue] : isEnabled;
 		headphonesName = [prefs objectForKey:@"headphonesName"] ? [prefs objectForKey:@"headphonesName"] : headphonesName;
 		if(isEnabled){
@@ -69,22 +70,32 @@ static void updatePrefs()
 	updatePrefs();
 	NCStatusObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/NCStatus" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
 		currentListeningMode = [notification.userInfo objectForKey:@"mode"];
+		if ([shouldChangeToMode isEqualToString:[notification.userInfo objectForKey:@"mode"]]){
+			shouldChangeToMode = @"";
+		}
 	}];
 	killAndRelaunchObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/killAndRelaunch" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
     	BKSTerminateApplicationForReasonAndReportWithDescription(@"jp.co.sony.songpal.mdr", 1, 0, 0);
 		dispatch_async(dispatch_get_main_queue(), ^{
 			[[UIApplication sharedApplication] launchApplicationWithIdentifier:@"jp.co.sony.songpal.mdr" suspended:1];
+		});
+	}];
+	appLaunchedObserver = [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.semvis123.sonyfy/appLaunched" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
+		if (![shouldChangeToMode isEqualToString:@""]){
+			NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+			[userInfo setObject:shouldChangeToMode forKey:@"mode"];
 			[[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
 				postNotificationName:@"com.semvis123.sonyfy/setNC"
 				object:nil
-				userInfo: notification.userInfo
+				userInfo:userInfo
 				deliverImmediately:YES]; 
-		});
+		}
 	}];
 
 }
 
 %dtor {
 	[[objc_getClass("NSDistributedNotificationCenter") defaultCenter] removeObserver:NCStatusObserver name:@"com.semvis123.sonyfy/NCStatus" object:nil ];
+	[[objc_getClass("NSDistributedNotificationCenter") defaultCenter] removeObserver:appLaunchedObserver name:@"com.semvis123.sonyfy/appLaunched" object:nil ];
 	[[objc_getClass("NSDistributedNotificationCenter") defaultCenter] removeObserver:killAndRelaunchObserver name:@"com.semvis123.sonyfy/killAndRelaunch" object:nil ];
 }

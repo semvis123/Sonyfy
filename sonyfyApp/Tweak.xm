@@ -74,17 +74,24 @@ id setNCObserver;
 			[[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
 				postNotificationName:@"com.semvis123.sonyfy/NCStatus"
 				object:nil
-				userInfo: notification.userInfo
+				userInfo:notification.userInfo
 				deliverImmediately:YES];
 		} @catch(id e) {
-			// Sometimes it doesn't respond to the method (bad timing ?) in that case catch the error, so we don't get a crash. 
+			// Sometimes it doesn't respond to the method (bad timing ?) in that case catch the error, so we don't get a crash.
+			// We can just relaunch the app and try again. 
 			[[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
 				postNotificationName:@"com.semvis123.sonyfy/killAndRelaunch"
 				object:nil
-				userInfo: notification.userInfo
+				userInfo:notification.userInfo
 				deliverImmediately:YES];
 		}
 	}];
+
+	[[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+		postNotificationName:@"com.semvis123.sonyfy/appLaunched"
+		object:nil
+		userInfo:nil
+		deliverImmediately:YES];
 }
 
 -(void)dealloc {
