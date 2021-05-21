@@ -55,21 +55,22 @@ id setNCObserver;
 		char dataNCOn[] = {0x68, 0x2, 0x11, NCSettingType, NCDualSingleValue, !!NCSettingType, focusOnVoiceNC, NCValue};
 		char dataASMOn[] = {0x68, 0x2, 0x11, ASMSettingType, ASMDualSingleValue, !!ASMSettingType, focusOnVoiceASM, ASMValue};
 		char dataASMOff[] = {0x68, 0x2, 0x0, 0x2, 0x0, 0x1, 0x0, 0x14};
-		IOSByteArray *byteArray;
-
-		if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeAudioTransparency"]){
-			byteArray = [%c(IOSByteArray) arrayWithBytes:dataASMOn count:8];
-		} else if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation"]){
-			byteArray = [%c(IOSByteArray) arrayWithBytes:dataNCOn count:8];
-		} else {
-			byteArray = [%c(IOSByteArray) arrayWithBytes:dataASMOff count:8];
-		}
-
-		THMSGV1T1NcAsmParam *ncAsmParam = [%c(THMSGV1T1NcAsmParam) createWithPayloadWithByteArray:byteArray];
-		THMSGV1T1SetNcAsmParam *setNcAsmParam = [[%c(THMSGV1T1SetNcAsmParam) alloc] initWithTHMSGV1T1NcAsmParamBase:ncAsmParam];
-		[setNcAsmParam restoreFromPayloadWithByteArray:byteArray];
 
 		@try {
+			IOSByteArray *byteArray;
+
+			if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeAudioTransparency"]){
+				byteArray = [%c(IOSByteArray) arrayWithBytes:dataASMOn count:8];
+			} else if ([[notification.userInfo objectForKey:@"mode"] isEqual:@"AVOutputDeviceBluetoothListeningModeActiveNoiseCancellation"]){
+				byteArray = [%c(IOSByteArray) arrayWithBytes:dataNCOn count:8];
+			} else {
+				byteArray = [%c(IOSByteArray) arrayWithBytes:dataASMOff count:8];
+			}
+
+			THMSGV1T1NcAsmParam *ncAsmParam = [%c(THMSGV1T1NcAsmParam) createWithPayloadWithByteArray:byteArray];
+			THMSGV1T1SetNcAsmParam *setNcAsmParam = [[%c(THMSGV1T1SetNcAsmParam) alloc] initWithTHMSGV1T1NcAsmParamBase:ncAsmParam];
+			[setNcAsmParam restoreFromPayloadWithByteArray:byteArray];
+
 			[self sendCommandWithComSonySongpalTandemfamilyMessageMdrIPayload:setNcAsmParam];
 			[[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
 				postNotificationName:@"com.semvis123.sonyfy/NCStatus"
