@@ -3,10 +3,10 @@
 Bring the noise cancellation control of your Sony headphones to the built-in iOS menu.
 
 # How does it work?
-It uses the official Sony Headphones app to send specific noise cancelling information to your headphones.
+It uses the official Sony Headphones app to send specific noise cancellation information to your headphones.
 
-# Does it work with other noise cancelling tweaks?
-Yes! Sonyfy should work just fine with other noise cancelling (automation) tweaks, because it emulates the behavior of the official Airpods pro.
+# Does it work with other noise cancellation tweaks?
+Yes! Sonyfy should work just fine with other noise cancellation (automation) tweaks, because it emulates the behavior of the official Airpods pro.
 
 # Does it work with my headphones?
 Sonyfy is currently tested and working on:
