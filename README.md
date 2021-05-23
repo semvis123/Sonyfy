@@ -1,4 +1,9 @@
 ![Noise cancellation](sonyfypreferences/Resources/banner.png)
+![Latest release](https://img.shields.io/github/v/tag/semvis123/sonyfy?include_prereleases&label=Latest%20release&style=flat-square)
+![Build status](https://img.shields.io/github/workflow/status/semvis123/sonyfy/Build?style=flat-square)
+![License](https://img.shields.io/github/license/semvis123/sonyfy?style=flat-square)
+![Discussions](https://img.shields.io/github/discussions/semvis123/sonyfy?style=flat-square)
+![Stars](https://img.shields.io/github/stars/semvis123/sonyfy?style=social)
 # Sonyfy
 Bring the noise cancellation control of your Sony headphones to the built-in iOS menu.
 
@@ -24,4 +29,5 @@ Other headphones might work but I haven't tested it.
 
 
 Let me know if your device is supported but I haven't put it on the list yet :)  
-@semvis123 on twitter.
+  
+![Twitter](https://img.shields.io/twitter/follow/semvis123?style=social)
