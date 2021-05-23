@@ -30,4 +30,4 @@ Other headphones might work but I haven't tested it.
 
 Let me know if your device is supported but I haven't put it on the list yet :)  
   
-![Twitter](https://img.shields.io/twitter/follow/semvis123?style=social)
+[![Twitter](https://img.shields.io/twitter/follow/semvis123?style=social)](https://twitter.com/semvis123)
