@@ -44,6 +44,16 @@
 	return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
+-(void)setPreferenceValue:(id)value specifier:(PSSpecifier*)specifier {
+	[super setPreferenceValue:value specifier:specifier];
+	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.semvis123.sonyfypreferences.plist"];
+	if (prefs) {
+		[prefs setObject:[NSNumber numberWithBool:YES] forKey:@"ignoreUpdate"];
+	}
+	[prefs writeToFile:@"/var/mobile/Library/Preferences/com.semvis123.sonyfypreferences.plist" atomically:YES];
+}
+
+
 -(void)_returnKeyPressed:(id)arg1 {
 	[self.view endEditing:YES];
 }

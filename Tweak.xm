@@ -1,6 +1,12 @@
 #import <Tweak.h>
 
+
+typedef struct __CFUserNotification *CFUserNotificationRef;
+FOUNDATION_EXTERN CFUserNotificationRef CFUserNotificationCreate(CFAllocatorRef allocator, CFTimeInterval timeout, CFOptionFlags flags, SInt32 *error, CFDictionaryRef dictionary);
+FOUNDATION_EXTERN SInt32 CFUserNotificationReceiveResponse(CFUserNotificationRef userNotification, CFTimeInterval timeout, CFOptionFlags *responseFlags);
+
 bool isEnabled = true;
+bool ignoreUpdate = false;
 NSString *headphonesName = @"WH-1000XM3";
 
 id NCStatusObserver;
@@ -56,6 +62,7 @@ static void updatePrefs() {
 	if(prefs){
 		isEnabled = [prefs objectForKey:@"enabled"] ? [[prefs objectForKey:@"enabled"] boolValue] : isEnabled;
 		headphonesName = [prefs objectForKey:@"headphonesName"] ? [prefs objectForKey:@"headphonesName"] : headphonesName;
+		ignoreUpdate = [prefs objectForKey:@"ignoreUpdate"] ? [[prefs objectForKey:@"ignoreUpdate"] boolValue] : ignoreUpdate;
 		if(isEnabled){
 			dispatch_async(dispatch_get_main_queue(), ^{
 				[[UIApplication sharedApplication] launchApplicationWithIdentifier:@"jp.co.sony.songpal.mdr" suspended:1];
@@ -91,7 +98,13 @@ static void updatePrefs() {
 				deliverImmediately:YES]; 
 		}
 	}];
-
+	if (!ignoreUpdate){
+		CFUserNotificationRef postinstNotification = CFUserNotificationCreate(kCFAllocatorDefault, 0, 0, NULL, (__bridge CFDictionaryRef)[[NSDictionary alloc] initWithObjectsAndKeys:
+			@"🎧 Friendly note 🎧", @"AlertHeader",
+			@"There's an update available for Sonyfy, it's called 'Sonitus' and it's better :) \n It's available for free! \n (you can ignore this update by toggling a setting)", @"AlertMessage",
+			@"Okay, I understand!", @"DefaultButtonTitle", nil]);
+		CFUserNotificationReceiveResponse(postinstNotification, 0.001, NULL);
+	}
 }
 
 %dtor {

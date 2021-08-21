@@ -1,6 +1,6 @@
 TARGET := iphone:clang:13.3.1
 INSTALL_TARGET_PROCESSES = SpringBoard
-THEOS_DEVICE_IP = 192.168.2.1
+THEOS_DEVICE_IP = 192.168.2.21
 include $(THEOS)/makefiles/common.mk
 ARCHS = arm64 arm64e
 TWEAK_NAME = Sonyfy
