@@ -5,6 +5,8 @@
 ![Discussions](https://img.shields.io/github/discussions/semvis123/sonyfy?style=flat-square)
 ![Stars](https://img.shields.io/github/stars/semvis123/sonyfy?style=social)
 # Sonyfy
+```Note this project shouldn't be used anymore, use Sonitus as a replacement.  ```
+
 Bring the noise cancellation control of your Sony headphones to the built-in iOS menu.
 
 # How does it work?
